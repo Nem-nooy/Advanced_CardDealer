@@ -3,12 +3,16 @@ package kr.ac.kumoh.ce.s20220736.advanced_carddealer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import kr.ac.kumoh.ce.s20220736.advanced_carddealer.CardModel.Companion.NUMBER_OF_CARDS
 import kotlin.random.Random
 
 class CardViewModel : ViewModel() {
-    companion object {
-        const val NUMBER_OF_CARDS = 5
-    }
+//    companion object {
+//        const val NUMBER_OF_CARDS = 5
+//    }
+
+    private val cardModel = CardModel()     // 말씀드리는건, 이렇게 만드는 건 좋은 방법이 아니에요.
+
     private val _cards = MutableLiveData<List<String>>()
     val cards: LiveData<List<String>>
         get() = _cards
@@ -21,15 +25,11 @@ class CardViewModel : ViewModel() {
             "c_king_of_spades2",
             "c_ace_of_spades"
         )
+        _cards.value = newCards
     }
 
-    fun shuffle(count: Int = NUMBER_OF_CARDS) {
-        val newCards = mutableSetOf<Int>()
-
-        // TODO: 상수 변경
-        while (newCards.size < count) {
-            newCards.add(Random.nextInt(52))
-        }
+    fun shuffle(count: Int = CardModel.NUMBER_OF_CARDS) {
+        val newCards = cardModel.dealCards()
 
         _cards.value = newCards.sorted().map { getCardName(it) }
     }
