@@ -40,6 +40,12 @@ android {
 }
 
 dependencies {
+    //implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    //implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
+    implementation(libs.androidx.runtime.livedata)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
