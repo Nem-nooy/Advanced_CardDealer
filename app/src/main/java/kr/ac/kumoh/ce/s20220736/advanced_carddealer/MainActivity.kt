@@ -3,6 +3,7 @@ package kr.ac.kumoh.ce.s20220736.advanced_carddealer
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,6 +21,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -46,16 +49,27 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen() {
-    val viewModel: CardViewModel = viewModel()    // 'viewModel()'의 앞이 소문자라는 것에 유의
+    val viewModel: CardViewModel = viewModel()
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
             Modifier.padding(innerPadding),
         ) {
-            //CardImages()  // CardSection()이라고 하셔도 좋고.
             CardSection(viewModel)
             ShuffleButton {
                 viewModel.shuffle()
             }
+            ShowHandRankToast(viewModel)
+        }
+    }
+}
+
+@Composable
+fun ShowHandRankToast(viewModel: CardViewModel) {
+    val context = LocalContext.current
+    val handRank by viewModel.handRank.observeAsState()
+    handRank?.let { rank ->
+        LaunchedEffect(rank) {
+            Toast.makeText(context, "당신의 족보는 $rank 입니다.", Toast.LENGTH_SHORT).show()
         }
     }
 }
@@ -65,54 +79,32 @@ fun MainScreen() {
 fun ColumnScope.CardSection(viewModel: CardViewModel = viewModel()) {
     val cards by viewModel.cards.observeAsState(emptyList())
     val context = LocalContext.current
-
     if (cards.isEmpty())
         return
-
     val cardResources = IntArray(5)
-
-    cards.forEachIndexed{ index, cardName ->
+    cards.forEachIndexed { index, cardName ->
         cardResources[index] = context.resources.getIdentifier(
             cardName,
             "drawable",
             context.packageName
         )
     }
-
-//    cardResources[0] = R.drawable.c_10_of_spades
-//    cardResources[1] = R.drawable.c_jack_of_spades2
-//    cardResources[2] = R.drawable.c_queen_of_spades2
-//    cardResources[3] = R.drawable.c_king_of_spades2
-//    cardResources[4] = R.drawable.c_ace_of_spades
-
     CardImages(cardResources)
 }
 
 @Composable
 fun ColumnScope.CardImages(res: IntArray) {
-    if (LocalConfiguration.current.orientation
-        == Configuration.ORIENTATION_LANDSCAPE) {
+    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
         Row(
             Modifier
                 .weight(1f)
                 .background(Color(0, 100, 0))
         ) {
-//            res.forEachIndexed {index, _ ->
-//                Image(
-//                    painter = painterResource(res[index]),
-//                    contentDescription = "Card ${index + 1}",
-//                    modifier = Modifier
-//                        .fillMaxHeight()
-//                        .padding(4.dp)
-//                        .weight(1f)
-//                )
-//            }
-            res.forEachIndexed {index, resItem ->
+            res.forEachIndexed { index, resItem ->
                 CardImageView(resItem, "card ${index + 1}")
             }
         }
-    }
-    else {    // 세로
+    } else {    // 세로
         Column(
             Modifier
                 .weight(1f)
